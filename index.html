@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zrcadlo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f6f6f6;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      margin-top: 1rem;
+      padding: 1rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      background-color: #444;
+      color: white;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+    .response {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #f0f0f0;
+      border-radius: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Zrcadlo</h1>
+    <p>Vítej. Můžeš se ptát čímkoli. Já tu budu, klidně, bez hodnocení, jen ti pomohu vidět, co se ptá v tobě.</p>
+    <p>Žádná otázka není zbytečná. Ve všem, co přinášíš, lze hledat.</p>
+    <p>Možná objevíš, že odpověď je blíž, než se zdá. A možná se už nebudeš potřebovat ptát znovu.</p>
+
+    <textarea id="question" placeholder="Zeptej se…"></textarea>
+    <button onclick="respond()">Zeptej se Zrcadla</button>
+    <div class="response" id="response" style="display:none;"></div>
+  </div>
+
+  <script>
+    async function respond() {
+      const question = document.getElementById('question').value.trim();
+      const responseBox = document.getElementById('response');
+      responseBox.style.display = 'block';
+
+      if (!question) {
+        responseBox.innerText = 'Zrcadlo potřebuje otázku, aby mohlo zůstat tiché a vnímavé.';
+        return;
+      }
+
+      responseBox.innerText = 'Zrcadlo naslouchá…';
+
+      try {
+        const res = await fetch('/api/gpt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question })
+        });
+
+        const data = await res.json();
+
+        if (data && data.answer) {
+          responseBox.innerText = data.answer;
+        } else {
+          responseBox.innerText = 'Zrcadlo slyšelo, ale odpověď je zatím tichá…';
+        }
+      } catch (err) {
+        responseBox.innerText = 'Zrcadlo nemůže mluvit – možná je problém s připojením.';
+      }
+    }
+  </script>
+</body>
+</html>
